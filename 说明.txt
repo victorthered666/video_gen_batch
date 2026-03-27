@@ -1,0 +1,21 @@
+注意！首先要整理好表格内容。
+·文件是依据play1.xlsx中的内容进行生成，play1.xlsx中的首帧和尾帧都是图片直链，需要先上传到图片站：
+·打开https://postimages.org/，注册后上传图片，选择直链，然后将直链地址放入play1.xlsx中。
+·生成完成之后，记得在postimages上删除上传的图片。
+
+windows下非常简单：
+1、先手动安装python 3.8 （https://www.python.org/ftp/python/3.8.0/python-3.8.0.exe 下载安装包一路点就可以了）
+2、然后运行"安装.bat"，等最后安装好所有环境；
+3、安装完成之后运行"生成.bat"，最后的生成结果会出现在output.xlsx中。
+
+mac下：
+1、先手动安装python 3.8（https://www.python.org/ftp/python/3.8.0/python-3.8.0-macosx10.9.pkg 下载安装包一路点）
+2、授予 "vg_setup.command" 和 "vg_gen.command"文件权限 ： 
+	i)	按住ctrl+空格键，输入Terminal，打开终端：
+	ii)	cd到本文件夹下；
+	iii)	输入 chmod +x vg_setup.command
+	iv)	输入 chmod +x vg_gen.command
+3、运行"vg_setup.command"，等最后安装好所有环境；
+4、安装完成之后运行"vg_gen.command"，最后生成结果会出现在output.xlsx中。
+
+
