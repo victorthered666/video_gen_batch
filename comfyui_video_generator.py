@@ -15,12 +15,19 @@ COMFYUI_API_BASE = os.getenv("COMFYUI_API_BASE", "http://localhost:8188")
 COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "Wan2.2_FLFrame.json")
 
 class ComfyUIVideoGenerator:
-    def __init__(self):
-        """初始化视频生成器"""
+    def __init__(self, excel_filename):
+        """初始化视频生成器
+        
+        Args:
+            excel_filename: 表格文件名，用于创建输出文件夹
+        """
         self.api_base = COMFYUI_API_BASE
         self.workflow_file = COMFYUI_WORKFLOW_JSON
         self.image_dir = "images"  # 图片文件夹
-        self.output_dir = "output_videos"  # 视频输出文件夹
+        
+        # 根据表格文件名创建输出文件夹
+        excel_basename = os.path.splitext(os.path.basename(excel_filename))[0]
+        self.output_dir = os.path.join("output_videos", excel_basename)  # 视频输出文件夹
         os.makedirs(self.output_dir, exist_ok=True)
         
     def load_excel_config(self, excel_path):
@@ -429,7 +436,8 @@ class ComfyUIVideoGenerator:
         
         # 保存结果
         if all_results:
-            output_path = 'output.xlsx'
+            # 构建output.xlsx的保存路径
+            output_path = os.path.join(self.output_dir, 'output.xlsx')
             
             if process_mode == 'failed' and output_excel_path and os.path.exists(output_excel_path):
                 # 更新现有的output.xlsx文件
@@ -489,15 +497,17 @@ def main():
     # 获取用户输入
     choice = input("请输入选择 (1 或 2): ").strip()
     
-    # 创建生成器实例
-    generator = ComfyUIVideoGenerator()
+    # 创建生成器实例，传递表格文件名
+    generator = ComfyUIVideoGenerator(excel_path)
+    
+    # 构建output.xlsx的保存路径
+    output_excel_path = os.path.join(generator.output_dir, 'output.xlsx')
     
     # 根据用户选择执行不同的处理逻辑
     if choice == '2':
-        output_excel_path = 'output.xlsx'
         # 检查output.xlsx是否存在
         if not os.path.exists(output_excel_path):
-            print(f"错误：output.xlsx 文件不存在，请先运行选项1生成初始结果")
+            print(f"错误：{output_excel_path} 文件不存在，请先运行选项1生成初始结果")
             return
         
         # 只处理失败的记录
