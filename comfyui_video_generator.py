@@ -12,7 +12,7 @@ load_dotenv()
 
 # ComfyUI配置
 COMFYUI_API_BASE = os.getenv("COMFYUI_API_BASE", "http://localhost:8188")
-COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "workflow.json")
+COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "Wan2.2_FLFrame.json")
 
 class ComfyUIVideoGenerator:
     def __init__(self):
@@ -63,26 +63,23 @@ class ComfyUIVideoGenerator:
         Returns:
             更新后的工作流JSON对象
         """
-        # 这里需要根据您的ComfyUI工作流节点结构进行调整
-        # 以下是一个示例，您需要根据实际工作流修改节点ID和参数名
-        
         # 查找并更新起始图片节点
-        for node_id, node in workflow['nodes'].items():
-            if node['type'] == 'LoadImage' and 'image' in node['inputs']:
+        for node_id, node in workflow.items():
+            if node['class_type'] == 'LoadImage' and 'image' in node['inputs'] and node.get('_meta', {}).get('title') == '首帧':
                 # 设置起始图片路径
                 node['inputs']['image'] = params['start_image']
                 break
         
         # 查找并更新结束图片节点
-        for node_id, node in workflow['nodes'].items():
-            if node['type'] == 'LoadImage' and 'image' in node['inputs']:
+        for node_id, node in workflow.items():
+            if node['class_type'] == 'LoadImage' and 'image' in node['inputs'] and node.get('_meta', {}).get('title') == '尾帧':
                 # 设置结束图片路径
                 node['inputs']['image'] = params['end_image']
                 break
         
         # 查找并更新描述文本节点
-        for node_id, node in workflow['nodes'].items():
-            if node['type'] == 'CLIPTextEncode' and 'text' in node['inputs']:
+        for node_id, node in workflow.items():
+            if node['class_type'] == 'easy prompt' and 'text' in node['inputs']:
                 # 设置描述文本
                 node['inputs']['text'] = params['description']
                 break
@@ -103,7 +100,7 @@ class ComfyUIVideoGenerator:
         try:
             # 构建请求参数
             payload = {
-                "prompt": json.dumps(workflow, ensure_ascii=False),
+                "prompt": workflow,
                 "output_dir": self.output_dir
             }
             
@@ -111,7 +108,14 @@ class ComfyUIVideoGenerator:
             response = requests.post(url, json=payload)
             
             if response.status_code == 200:
-                return response.json()
+                result = response.json()
+                # 轮询任务状态，直到完成
+                if 'prompt_id' in result:
+                    completed = self._wait_for_completion(result['prompt_id'])
+                    if not completed:
+                        print("任务未在超时时间内完成")
+                        return None
+                return result
             else:
                 print(f"API调用失败，状态码: {response.status_code}")
                 print(f"响应内容: {response.text}")
@@ -120,6 +124,39 @@ class ComfyUIVideoGenerator:
         except Exception as e:
             print(f"调用ComfyUI API时出错: {str(e)}")
             return None
+    
+    def _wait_for_completion(self, prompt_id):
+        """等待任务完成
+        
+        Args:
+            prompt_id: 任务ID
+        """
+        url = f"{self.api_base}/history/{prompt_id}"
+        
+        print(f"开始等待任务 {prompt_id} 完成...")
+        start_time = time.time()
+        timeout = 300  # 5分钟超时
+        
+        while time.time() - start_time < timeout:
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    history = response.json()
+                    if prompt_id in history:
+                        # 检查任务是否有输出（表示已完成）
+                        if 'outputs' in history[prompt_id]:
+                            print(f"任务 {prompt_id} 已完成，发现输出结果")
+                            # 等待5秒确保文件写入完成
+                            print("等待5秒确保视频文件完全写入...")
+                            time.sleep(5)
+                            return True
+                time.sleep(3)  # 每3秒检查一次
+            except Exception as e:
+                print(f"检查任务状态时出错: {str(e)}")
+                time.sleep(3)
+        
+        print(f"任务 {prompt_id} 等待超时")
+        return False
     
     def generate_video(self, config_row):
         """根据配置生成单个视频"""
@@ -134,11 +171,9 @@ class ComfyUIVideoGenerator:
             start_image = str(config_row['首帧'])
             end_image = str(config_row['尾帧'])
             
-            # 如果是相对路径，转换为绝对路径
-            if not os.path.isabs(start_image):
-                start_image = os.path.join(self.image_dir, start_image)
-            if not os.path.isabs(end_image):
-                end_image = os.path.join(self.image_dir, end_image)
+            # 转换为绝对路径
+            start_image = os.path.abspath(os.path.join(self.image_dir, start_image))
+            end_image = os.path.abspath(os.path.join(self.image_dir, end_image))
             
             # 验证图片文件是否存在
             if not os.path.exists(start_image):
@@ -189,23 +224,15 @@ class ComfyUIVideoGenerator:
                     prompt_id = result['prompt_id']
                     print(f"工作流执行成功，prompt_id: {prompt_id}")
                     
-                    # 视频文件通常会保存在ComfyUI的输出目录中
-                    # 这里需要根据您的工作流输出节点配置进行调整
-                    video_path = os.path.join(self.output_dir, f"video_{sequence_id}.mp4")
+                    # 从ComfyUI历史记录中获取生成的视频文件名
+                    video_path = self._get_video_from_history(prompt_id, sequence_id)
                     
-                    # 检查视频文件是否生成
-                    if os.path.exists(video_path):
+                    if video_path:
                         print(f"视频生成成功，保存路径: {video_path}")
                         return {'sequence_id': sequence_id, 'video_path': video_path, 'status': 'success'}
                     else:
-                        # 视频文件可能需要一些时间生成，这里简单等待后再次检查
-                        time.sleep(5)
-                        if os.path.exists(video_path):
-                            print(f"视频生成成功，保存路径: {video_path}")
-                            return {'sequence_id': sequence_id, 'video_path': video_path, 'status': 'success'}
-                        else:
-                            print(f"视频文件未找到，可能正在生成中")
-                            return {'sequence_id': sequence_id, 'video_path': video_path, 'status': 'pending'}
+                        print(f"视频文件未找到，可能正在生成中")
+                        return {'sequence_id': sequence_id, 'video_path': None, 'status': 'pending'}
                 else:
                     error_msg = result.get('message', 'API调用失败')
                     print(f"工作流执行失败: {error_msg}")
@@ -218,6 +245,77 @@ class ComfyUIVideoGenerator:
             error_msg = f"处理工作流结果时出错: {str(e)}"
             print(error_msg)
             return {'sequence_id': sequence_id, 'video_path': None, 'status': 'failed', 'error_msg': error_msg}
+    
+    def _get_video_from_history(self, prompt_id, sequence_id):
+        """从outpaths.txt文件中获取视频文件并拷贝到output_videos文件夹
+        
+        Args:
+            prompt_id: 任务ID
+            sequence_id: 序列ID
+            
+        Returns:
+            视频文件路径
+        """
+        try:
+            # 读取outpaths.txt文件获取视频地址
+            outpaths_file = "outpaths.txt"
+            if os.path.exists(outpaths_file):
+                with open(outpaths_file, 'r', encoding='utf-8') as f:
+                    video_file = f.read().strip()
+                
+                print(f"从outpaths.txt获取视频地址: {video_file}")
+                
+                # 验证文件是否存在
+                if os.path.exists(video_file):
+                    # 构建目标路径
+                    target_file = os.path.join(self.output_dir, f"video_{sequence_id}.mp4")
+                    
+                    # 拷贝文件
+                    import shutil
+                    shutil.copy2(video_file, target_file)
+                    print(f"视频已拷贝到: {target_file}")
+                    return target_file
+                else:
+                    print(f"视频文件不存在: {video_file}")
+            else:
+                print(f"outpaths.txt文件不存在")
+                
+                # 如果outpaths.txt不存在，尝试从历史记录中获取
+                url = f"{self.api_base}/history/{prompt_id}"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    history = response.json()
+                    if prompt_id in history:
+                        outputs = history[prompt_id].get('outputs', {})
+                        
+                        # 直接查找218号节点的输出
+                        if '218' in outputs:
+                            node_output = outputs['218']
+                            # 检查节点类型确认是VHS_SelectFilename
+                            node_info = node_output.get('node', {})
+                            if node_info.get('class_type') == 'VHS_SelectFilename':
+                                # 从节点输出获取视频文件路径
+                                # 直接获取'Filename'键的值，这是完整的文件地址
+                                if 'Filename' in node_output:
+                                    video_file = node_output['Filename']
+                                    print(f"从218号节点获取视频地址: {video_file}")
+                                    
+                                    # 验证文件是否存在
+                                    if os.path.exists(video_file):
+                                        # 构建目标路径
+                                        target_file = os.path.join(self.output_dir, f"video_{sequence_id}.mp4")
+                                        
+                                        # 拷贝文件
+                                        import shutil
+                                        shutil.copy2(video_file, target_file)
+                                        print(f"视频已拷贝到: {target_file}")
+                                        return target_file
+                                    else:
+                                        print(f"视频文件不存在: {video_file}")
+        except Exception as e:
+            print(f"获取视频文件时出错: {str(e)}")
+        
+        return None
     
     def process_all(self, excel_path, process_mode='all', output_excel_path=None):
         """处理Excel中的记录
@@ -269,7 +367,7 @@ class ComfyUIVideoGenerator:
                 
                 # 过滤配置文件中的记录，只保留失败的记录
                 df = df[df['序号'].astype(str).isin(failed_ids)]
-                valid_count = sum(df['是否生效'] if is_bool_column else df['是否生效'] == 'TRUE')
+                valid_count = sum(1 for _, row in df.iterrows() if row['是否生效'])
                 
                 if valid_count == 0:
                     print("没有有效的失败记录需要处理")
@@ -282,7 +380,7 @@ class ComfyUIVideoGenerator:
                 return
         else:
             # 处理所有记录
-            valid_count = sum(df['是否生效'] if is_bool_column else df['是否生效'] == 'TRUE')
+            valid_count = sum(1 for _, row in df.iterrows() if row['是否生效'])
             print(f"开始处理所有有效记录，共 {valid_count} 条")
         
         # 处理每条记录
