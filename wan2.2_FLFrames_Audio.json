@@ -1,0 +1,844 @@
+{
+  "58": {
+    "inputs": {
+      "image": "1.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "首帧"
+    }
+  },
+  "69": {
+    "inputs": {
+      "base_resolution": [
+        "120",
+        0
+      ],
+      "image": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "FramePackFindNearestBucket",
+    "_meta": {
+      "title": "Find Nearest Bucket"
+    }
+  },
+  "70": {
+    "inputs": {
+      "ckpt_name": "rife49.pth",
+      "clear_cache_after_n_frames": 30,
+      "multiplier": 2,
+      "fast_mode": true,
+      "ensemble": true,
+      "scale_factor": 1,
+      "enabled": [
+        "171",
+        0
+      ],
+      "frames": [
+        "191",
+        0
+      ]
+    },
+    "class_type": "RIFE VFI",
+    "_meta": {
+      "title": "RIFE VFI (recommend rife47 and rife49)"
+    }
+  },
+  "92": {
+    "inputs": {
+      "value": 5
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "视频时长（秒）"
+    }
+  },
+  "94": {
+    "inputs": {
+      "value": "a*16+1",
+      "a": [
+        "92",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "98": {
+    "inputs": {
+      "frame_rate": [
+        "184",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "out",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 23,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "70",
+        0
+      ],
+      "audio": [
+        "240",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "输出"
+    }
+  },
+  "103": {
+    "inputs": {
+      "width": [
+        "120",
+        0
+      ],
+      "height": [
+        "237",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "119": {
+    "inputs": {
+      "text": "△ 中景平拍，画左，女子双臂撑在杰洛特身体两侧，俯身，散发着洋甘菊清香的黑色长发如瀑布般垂落，拂过他的脸颊。\n△ 特写平拍，画中，女子指尖缓慢划过杰洛特紧闭的眼睑，再划过他的脸颊，最后停留在他微张的双唇上。\n杰洛特（嘴角勾起一丝极淡的笑）：……",
+      "prefix": "Select the prefix add to the text",
+      "subject": "👤Select the subject add to the text",
+      "action": "🎬Select the action add to the text",
+      "clothes": "👚Select the clothes add to the text",
+      "environment": "☀️Select the illumination environment add to the text",
+      "background": "🎞️Select the background add to the text",
+      "nsfw": "🔞Select the nsfw add to the text"
+    },
+    "class_type": "easy prompt",
+    "_meta": {
+      "title": "正向提示词"
+    }
+  },
+  "120": {
+    "inputs": {
+      "value": 576
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "视频宽"
+    }
+  },
+  "122": {
+    "inputs": {
+      "value": 6
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "步数"
+    }
+  },
+  "130": {
+    "inputs": {
+      "seed": 747465607611354
+    },
+    "class_type": "easy seed",
+    "_meta": {
+      "title": "随机种子"
+    }
+  },
+  "140": {
+    "inputs": {
+      "image": "2.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "尾帧"
+    }
+  },
+  "141": {
+    "inputs": {
+      "width": [
+        "103",
+        1
+      ],
+      "height": [
+        "103",
+        2
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "140",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "142": {
+    "inputs": {
+      "value": 1.0000000000000002
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "CFG"
+    }
+  },
+  "156": {
+    "inputs": {
+      "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
+      "type": "wan",
+      "device": "cuda:0"
+    },
+    "class_type": "CLIPLoaderGGUFMultiGPU",
+    "_meta": {
+      "title": "CLIPLoaderGGUFMultiGPU"
+    }
+  },
+  "157": {
+    "inputs": {
+      "text": [
+        "119",
+        0
+      ],
+      "clip": [
+        "156",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "161": {
+    "inputs": {
+      "text": "色调艳丽，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
+      "clip": [
+        "156",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "171": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "是否补帧输出"
+    }
+  },
+  "172": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "分块编解码"
+    }
+  },
+  "176": {
+    "inputs": {
+      "value": 30
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "整数"
+    }
+  },
+  "178": {
+    "inputs": {
+      "value": 16
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "整数"
+    }
+  },
+  "184": {
+    "inputs": {
+      "boolean": [
+        "171",
+        0
+      ],
+      "on_true": [
+        "176",
+        0
+      ],
+      "on_false": [
+        "178",
+        0
+      ]
+    },
+    "class_type": "Switch any [Crystools]",
+    "_meta": {
+      "title": "🪛 Switch any"
+    }
+  },
+  "187": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "130",
+        0
+      ],
+      "steps": [
+        "122",
+        0
+      ],
+      "cfg": [
+        "142",
+        0
+      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "192",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "206",
+        0
+      ],
+      "positive": [
+        "189",
+        0
+      ],
+      "negative": [
+        "189",
+        1
+      ],
+      "latent_image": [
+        "189",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "K采样器（高级）"
+    }
+  },
+  "188": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "130",
+        0
+      ],
+      "steps": [
+        "122",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "192",
+        0
+      ],
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "207",
+        0
+      ],
+      "positive": [
+        "189",
+        0
+      ],
+      "negative": [
+        "189",
+        1
+      ],
+      "latent_image": [
+        "187",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "K采样器（高级）"
+    }
+  },
+  "189": {
+    "inputs": {
+      "width": [
+        "103",
+        1
+      ],
+      "height": [
+        "103",
+        2
+      ],
+      "length": [
+        "94",
+        0
+      ],
+      "batch_size": 1,
+      "positive": [
+        "157",
+        0
+      ],
+      "negative": [
+        "161",
+        0
+      ],
+      "vae": [
+        "190",
+        0
+      ],
+      "start_image": [
+        "103",
+        0
+      ],
+      "end_image": [
+        "141",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideo",
+    "_meta": {
+      "title": "WanFirstLastFrameToVideo"
+    }
+  },
+  "190": {
+    "inputs": {
+      "vae_name": "Wan2_1_VAE_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载VAE"
+    }
+  },
+  "191": {
+    "inputs": {
+      "samples": [
+        "188",
+        0
+      ],
+      "vae": [
+        "190",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "192": {
+    "inputs": {
+      "value": "a/2",
+      "a": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "193": {
+    "inputs": {
+      "unet_name": "Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf",
+      "device": "cuda:0",
+      "virtual_vram_gb": 0,
+      "use_other_vram": false,
+      "expert_mode_allocations": ""
+    },
+    "class_type": "UnetLoaderGGUFDisTorchMultiGPU",
+    "_meta": {
+      "title": "高噪声模型选择HighNoise"
+    }
+  },
+  "194": {
+    "inputs": {
+      "unet_name": "Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf",
+      "device": "cuda:0",
+      "virtual_vram_gb": 0,
+      "use_other_vram": false,
+      "expert_mode_allocations": ""
+    },
+    "class_type": "UnetLoaderGGUFDisTorchMultiGPU",
+    "_meta": {
+      "title": "低噪声模型选择LowNoise"
+    }
+  },
+  "195": {
+    "inputs": {
+      "sage_attention": "auto",
+      "model": [
+        "208",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "196": {
+    "inputs": {
+      "sage_attention": "auto",
+      "model": [
+        "194",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "197": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "195",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "198": {
+    "inputs": {
+      "strength": 1.0000000000000002,
+      "model": [
+        "197",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
+    }
+  },
+  "199": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "196",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "200": {
+    "inputs": {
+      "lora_stack": [
+        "202",
+        0
+      ],
+      "model": [
+        "198",
+        0
+      ]
+    },
+    "class_type": "easy loraStackApply",
+    "_meta": {
+      "title": "应用LoRA堆"
+    }
+  },
+  "201": {
+    "inputs": {
+      "lora_stack": [
+        "203",
+        0
+      ],
+      "model": [
+        "199",
+        0
+      ]
+    },
+    "class_type": "easy loraStackApply",
+    "_meta": {
+      "title": "应用LoRA堆"
+    }
+  },
+  "202": {
+    "inputs": {
+      "toggle": true,
+      "mode": "simple",
+      "num_loras": 5,
+      "lora_1_name": "None",
+      "lora_1_strength": 1,
+      "lora_1_model_strength": 1,
+      "lora_1_clip_strength": 1,
+      "lora_2_name": "None",
+      "lora_2_strength": 1,
+      "lora_2_model_strength": 1,
+      "lora_2_clip_strength": 1,
+      "lora_3_name": "None",
+      "lora_3_strength": 1,
+      "lora_3_model_strength": 1,
+      "lora_3_clip_strength": 1,
+      "lora_4_name": "None",
+      "lora_4_strength": 1,
+      "lora_4_model_strength": 1,
+      "lora_4_clip_strength": 1,
+      "lora_5_name": "None",
+      "lora_5_strength": 1,
+      "lora_5_model_strength": 1,
+      "lora_5_clip_strength": 1,
+      "lora_6_name": "None",
+      "lora_6_strength": 1,
+      "lora_6_model_strength": 1,
+      "lora_6_clip_strength": 1,
+      "lora_7_name": "None",
+      "lora_7_strength": 1,
+      "lora_7_model_strength": 1,
+      "lora_7_clip_strength": 1,
+      "lora_8_name": "None",
+      "lora_8_strength": 1,
+      "lora_8_model_strength": 1,
+      "lora_8_clip_strength": 1,
+      "lora_9_name": "None",
+      "lora_9_strength": 1,
+      "lora_9_model_strength": 1,
+      "lora_9_clip_strength": 1,
+      "lora_10_name": "None",
+      "lora_10_strength": 1,
+      "lora_10_model_strength": 1,
+      "lora_10_clip_strength": 1
+    },
+    "class_type": "easy loraStack",
+    "_meta": {
+      "title": "高噪声LORA"
+    }
+  },
+  "203": {
+    "inputs": {
+      "toggle": true,
+      "mode": "simple",
+      "num_loras": 5,
+      "lora_1_name": "None",
+      "lora_1_strength": 1,
+      "lora_1_model_strength": 1,
+      "lora_1_clip_strength": 1,
+      "lora_2_name": "None",
+      "lora_2_strength": 1,
+      "lora_2_model_strength": 1,
+      "lora_2_clip_strength": 1,
+      "lora_3_name": "None",
+      "lora_3_strength": 1,
+      "lora_3_model_strength": 1,
+      "lora_3_clip_strength": 1,
+      "lora_4_name": "None",
+      "lora_4_strength": 1,
+      "lora_4_model_strength": 1,
+      "lora_4_clip_strength": 1,
+      "lora_5_name": "None",
+      "lora_5_strength": 1.0000000000000002,
+      "lora_5_model_strength": 1,
+      "lora_5_clip_strength": 1,
+      "lora_6_name": "None",
+      "lora_6_strength": 1,
+      "lora_6_model_strength": 1,
+      "lora_6_clip_strength": 1,
+      "lora_7_name": "None",
+      "lora_7_strength": 1,
+      "lora_7_model_strength": 1,
+      "lora_7_clip_strength": 1,
+      "lora_8_name": "None",
+      "lora_8_strength": 1,
+      "lora_8_model_strength": 1,
+      "lora_8_clip_strength": 1,
+      "lora_9_name": "None",
+      "lora_9_strength": 1,
+      "lora_9_model_strength": 1,
+      "lora_9_clip_strength": 1,
+      "lora_10_name": "None",
+      "lora_10_strength": 1,
+      "lora_10_model_strength": 1,
+      "lora_10_clip_strength": 1
+    },
+    "class_type": "easy loraStack",
+    "_meta": {
+      "title": "低噪声LORA"
+    }
+  },
+  "204": {
+    "inputs": {
+      "lora_name": "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
+      "strength_model": 3.0000000000000004,
+      "model": [
+        "200",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    }
+  },
+  "205": {
+    "inputs": {
+      "lora_name": "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
+      "strength_model": 1.5000000000000002,
+      "model": [
+        "201",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoRA加载器（仅模型）"
+    }
+  },
+  "206": {
+    "inputs": {
+      "shift": 8.000000000000002,
+      "model": [
+        "204",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "采样算法（SD3）"
+    }
+  },
+  "207": {
+    "inputs": {
+      "shift": 8.000000000000002,
+      "model": [
+        "205",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "采样算法（SD3）"
+    }
+  },
+  "208": {
+    "inputs": {
+      "reserved": 2,
+      "anything": [
+        "193",
+        0
+      ]
+    },
+    "class_type": "ReservedVRAMSetter",
+    "_meta": {
+      "title": "保留显存"
+    }
+  },
+  "218": {
+    "inputs": {
+      "index": 2,
+      "filenames": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "VHS_SelectFilename",
+    "_meta": {
+      "title": "Select Filename 🎥🅥🅗🅢"
+    }
+  },
+  "229": {
+    "inputs": {
+      "output_file_path": "F:\\video_gen_batch\\",
+      "file_name": "outpaths",
+      "file_extension": "txt",
+      "overwrite": true,
+      "text": [
+        "218",
+        0
+      ]
+    },
+    "class_type": "easy saveText",
+    "_meta": {
+      "title": "保存文本"
+    }
+  },
+  "237": {
+    "inputs": {
+      "value": 1024
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "视频高"
+    }
+  },
+  "240": {
+    "inputs": {
+      "text": "神秘女子发丝摇曳，伸出指尖轻抚白狼的脸颊",
+      "speaker": "Serena (Chinese - Warm, Soft, Young Female)",
+      "language": "Auto",
+      "output_mode": "Concatenate (Merge)",
+      "seed": 973314493972149,
+      "instruct": "",
+      "max_new_tokens": 2048,
+      "temperature": 0.9,
+      "top_p": 1,
+      "top_k": 50,
+      "repetition_penalty": 1.05,
+      "subtalker_temperature": 0.9,
+      "subtalker_top_p": 1,
+      "subtalker_top_k": 50,
+      "model_obj": [
+        "241",
+        0
+      ]
+    },
+    "class_type": "Qwen3TTSCustomVoice",
+    "_meta": {
+      "title": "Qwen3-TTS Custom Voice 🎭"
+    }
+  },
+  "241": {
+    "inputs": {
+      "model_repo": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+      "download_source": "ModelScope",
+      "precision": "bf16",
+      "attn_mode": "sdpa",
+      "auto_download": true
+    },
+    "class_type": "Qwen3TTSLoader",
+    "_meta": {
+      "title": "Qwen3-TTS Loader 🚀"
+    }
+  }
+}

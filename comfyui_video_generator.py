@@ -12,7 +12,7 @@ load_dotenv()
 
 # ComfyUI配置
 COMFYUI_API_BASE = os.getenv("COMFYUI_API_BASE", "http://localhost:8188")
-COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "Wan2.2_FLFrame.json")
+COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "wan2.2_FLFrames_Audio.json")
 
 class ComfyUIVideoGenerator:
     def __init__(self, excel_filename):
@@ -70,6 +70,15 @@ class ComfyUIVideoGenerator:
         Returns:
             更新后的工作流JSON对象
         """
+        # 查找并更新229号节点的output_file_path为当前文件夹
+        if '229' in workflow:
+            node = workflow['229']
+            if 'inputs' in node:
+                # 获取当前工作目录
+                current_dir = os.getcwd()
+                node['inputs']['output_file_path'] = current_dir
+                print(f"已将229号节点的output_file_path设置为: {current_dir}")
+        
         # 查找并更新起始图片节点
         for node_id, node in workflow.items():
             if node['class_type'] == 'LoadImage' and 'image' in node['inputs'] and node.get('_meta', {}).get('title') == '首帧':
@@ -90,6 +99,13 @@ class ComfyUIVideoGenerator:
                 # 设置描述文本
                 node['inputs']['text'] = params['description']
                 break
+        
+        # 查找并更新240号节点的text项为旁白内容
+        if '240' in workflow and 'narration' in params:
+            node = workflow['240']
+            if 'inputs' in node and 'text' in node['inputs']:
+                node['inputs']['text'] = params['narration']
+                print(f"已将240号节点的text项设置为旁白内容")
         
         return workflow
     
@@ -197,6 +213,11 @@ class ComfyUIVideoGenerator:
                 "description": str(config_row['画面镜头描述']),
                 "sequence_id": str(sequence_id)
             }
+            
+            # 检查是否有“旁白”列
+            if '旁白' in config_row:
+                params['narration'] = str(config_row['旁白'])
+                print(f"获取旁白内容: {params['narration']}")
             
             # 加载工作流
             workflow = self.load_workflow()
