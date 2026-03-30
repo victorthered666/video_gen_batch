@@ -293,16 +293,31 @@ class ComfyUIVideoGenerator:
         try:
             # 读取outpaths.txt文件获取视频地址
             outpaths_file = "outpaths.txt"
+            video_file = None
+            
             if os.path.exists(outpaths_file):
+                # 检查文件大小
+                file_size = os.path.getsize(outpaths_file)
+                print(f"outpaths.txt文件大小: {file_size} 字节")
+                
                 with open(outpaths_file, 'r', encoding='utf-8') as f:
                     video_file = f.read().strip()
                 
-                print(f"从outpaths.txt获取视频地址: {video_file}")
+                print(f"从outpaths.txt获取视频地址: '{video_file}'")
                 
                 # 验证文件是否存在
-                if os.path.exists(video_file):
+                if video_file and os.path.exists(video_file):
                     # 构建目标路径
-                    target_file = os.path.join(self.output_dir, f"video_{sequence_id}.mp4")
+                    base_name = f"video_{sequence_id}"
+                    extension = ".mp4"
+                    target_file = os.path.join(self.output_dir, f"{base_name}{extension}")
+                    
+                    # 容错处理：如果文件已存在，增加数字编号后缀
+                    counter = 1
+                    while os.path.exists(target_file):
+                        print(f"目标文件已存在: {target_file}")
+                        target_file = os.path.join(self.output_dir, f"{base_name}_{counter}{extension}")
+                        counter += 1
                     
                     # 拷贝文件
                     import shutil
@@ -310,7 +325,7 @@ class ComfyUIVideoGenerator:
                     print(f"视频已拷贝到: {target_file}")
                     return target_file
                 else:
-                    print(f"视频文件不存在: {video_file}")
+                    print(f"视频文件不存在或路径为空: '{video_file}'")
             else:
                 print(f"outpaths.txt文件不存在")
                 
@@ -321,6 +336,7 @@ class ComfyUIVideoGenerator:
                     history = response.json()
                     if prompt_id in history:
                         outputs = history[prompt_id].get('outputs', {})
+                        print(f"历史记录中的输出节点数量: {len(outputs)}")
                         
                         # 直接查找218号节点的输出
                         if '218' in outputs:
@@ -337,7 +353,16 @@ class ComfyUIVideoGenerator:
                                     # 验证文件是否存在
                                     if os.path.exists(video_file):
                                         # 构建目标路径
-                                        target_file = os.path.join(self.output_dir, f"video_{sequence_id}.mp4")
+                                        base_name = f"video_{sequence_id}"
+                                        extension = ".mp4"
+                                        target_file = os.path.join(self.output_dir, f"{base_name}{extension}")
+                                        
+                                        # 容错处理：如果文件已存在，增加数字编号后缀
+                                        counter = 1
+                                        while os.path.exists(target_file):
+                                            print(f"目标文件已存在: {target_file}")
+                                            target_file = os.path.join(self.output_dir, f"{base_name}_{counter}{extension}")
+                                            counter += 1
                                         
                                         # 拷贝文件
                                         import shutil
@@ -346,6 +371,12 @@ class ComfyUIVideoGenerator:
                                         return target_file
                                     else:
                                         print(f"视频文件不存在: {video_file}")
+                        else:
+                            print("218号节点不存在于历史记录中")
+                    else:
+                        print(f"历史记录中未找到prompt_id: {prompt_id}")
+                else:
+                    print(f"获取历史记录失败，状态码: {response.status_code}")
         except Exception as e:
             print(f"获取视频文件时出错: {str(e)}")
         
