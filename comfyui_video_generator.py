@@ -190,6 +190,12 @@ class ComfyUIVideoGenerator:
         print(f"处理序号 {sequence_id} 的视频")
         
         try:
+            # 清空outpaths.txt文件的内容
+            outpaths_file = "outpaths.txt"
+            with open(outpaths_file, 'w', encoding='utf-8') as f:
+                f.write('')
+            print(f"已清空outpaths.txt文件")
+            
             # 获取图片路径
             start_image = str(config_row['首帧'])
             end_image = str(config_row['尾帧'])
