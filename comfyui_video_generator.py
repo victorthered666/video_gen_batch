@@ -12,7 +12,7 @@ load_dotenv()
 
 # ComfyUI配置
 COMFYUI_API_BASE = os.getenv("COMFYUI_API_BASE", "http://localhost:8188")
-COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "wan2.2_FLFrames_Audio.json")
+COMFYUI_WORKFLOW_JSON = os.getenv("COMFYUI_WORKFLOW_JSON", "wan2.2_FLFrames_Audio_Subtitle.json")
 
 class ComfyUIVideoGenerator:
     def __init__(self, excel_filename):
@@ -106,6 +106,13 @@ class ComfyUIVideoGenerator:
             if 'inputs' in node and 'text' in node['inputs']:
                 node['inputs']['text'] = params['narration']
                 print(f"已将240号节点的text项设置为旁白内容")
+        
+        # 查找所有class_type为Text Overlay的节点，将旁白内容传入其text属性
+        if 'narration' in params:
+            for node_id, node in workflow.items():
+                if node.get('class_type') == 'Text Overlay' and 'inputs' in node and 'text' in node['inputs']:
+                    node['inputs']['text'] = params['narration']
+                    print(f"已将节点 {node_id} (Text Overlay) 的text属性设置为旁白内容")
         
         return workflow
     
