@@ -1,5 +1,6 @@
-pandas
-openpyxl
-requests
-python-dotenv
-sentence-transformers
+# 项目依赖
+pandas==2.2.2
+requests==2.31.0
+python-dotenv==1.0.0
+
+# 注：merge_videos.py需要ffmpeg命令行工具，请确保已安装并添加到系统路径中

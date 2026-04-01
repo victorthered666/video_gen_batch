@@ -19,3 +19,8 @@ mac下：
 4、安装完成之后运行"vg_gen.command"，最后生成结果会出现在output.xlsx中。
 
 
+使用方式：
+前置：安装wan2.2comfyui本项目定制版，安装toonflow；
+配置后通过toonflow生成分镜；
+之后将分镜图填入 项目名称.xlsx中；
+运行python comfyui_video_generator.py 项目名称.xlsx。
